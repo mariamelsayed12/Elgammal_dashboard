@@ -1,5 +1,4 @@
 "use client";
-
 import * as React from "react";
 import { Eye, EyeOff } from "lucide-react";
 import { cn } from "@/app/lib/utils";
@@ -78,6 +77,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
             type={currentType}
             disabled={disabled}
             required={required}
+            suppressHydrationWarning
             className={cn(
               "h-full w-full bg-transparent text-[16px] font-normal text-text-input placeholder:text-text-placeholder focus:outline-none disabled:cursor-not-allowed font-poppins"
             )}

@@ -3,8 +3,51 @@
 import Image from "next/image";
 import { Button } from "@/app/components/ui/Button";
 import { Input } from "@/app/components/ui/Input";
+import { useForm } from "react-hook-form";
+import z from "zod";
+import { loginformSchema } from "../schema";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { zodResolver } from "@hookform/resolvers/zod";
+
+type LoginFormValues = z.infer<typeof loginformSchema>;
+
 
 export default function LoginPage() {
+  const [loading, setLoading] = useState(false);
+  const router = useRouter();
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<LoginFormValues>({
+    resolver: zodResolver(loginformSchema),
+  });
+
+  const onSubmit = async (data: LoginFormValues) => {
+    setLoading(true);
+    try {
+      const res = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email: data.email,
+          password: data.password,
+        }),
+      });
+      if (res.ok) {
+       
+
+        router.push("/");
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <main className="relative h-screen w-full flex items-center justify-center overflow-hidden p-4 sm:p-6 lg:p-8">
       {/* Background Image with Dark Overlay */}
@@ -53,7 +96,7 @@ export default function LoginPage() {
 
           {/* Form UI (Only Reusable Input and Button Components) */}
           <form
-            onSubmit={(e) => e.preventDefault()}
+            onSubmit={handleSubmit(onSubmit)}
             className="flex flex-col items-center justify-center gap-[32px] w-full"
           >
             {/* Inputs Container */}
@@ -65,6 +108,8 @@ export default function LoginPage() {
                 required
                 placeholder=""
                 autoComplete="email"
+                {...register("email")}
+                error={errors.email?.message}
               />
 
               {/* Password Input & Forgot Password */}
@@ -76,6 +121,8 @@ export default function LoginPage() {
                   isPasswordToggle
                   placeholder=""
                   autoComplete="current-password"
+                  {...register("password")}
+                  error={errors.password?.message}
                 />
                 
                 {/* Forgot Password Link */}
@@ -91,8 +138,8 @@ export default function LoginPage() {
             </div>
 
             {/* Login Button */}
-            <Button variant="primary" size="md" fullWidth type="submit">
-              Login
+            <Button variant="primary" size="md" fullWidth type="submit" disabled={loading}>
+              {loading ? "Logging in..." : "Login"}
             </Button>
           </form>
 
@@ -101,3 +148,4 @@ export default function LoginPage() {
     </main>
   );
 }
+
