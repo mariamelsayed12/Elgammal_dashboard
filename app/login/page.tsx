@@ -9,6 +9,7 @@ import { loginformSchema } from "../schema";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
+import toast from "react-hot-toast";
 
 type LoginFormValues = z.infer<typeof loginformSchema>;
 
@@ -26,27 +27,47 @@ export default function LoginPage() {
   });
 
   const onSubmit = async (data: LoginFormValues) => {
-    setLoading(true);
-    try {
-      const res = await fetch("/api/auth/login", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          email: data.email,
-          password: data.password,
-        }),
-      });
-      if (res.ok) {
-       
+  setLoading(true);
 
+  try {
+    const res = await fetch("/api/auth/login", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        email: data.email,
+        password: data.password,
+      }),
+    });
+
+    if (res.ok) {
+      toast.success("Login successfully");
+
+      setTimeout(() => {
         router.push("/");
-      }
-    } finally {
-      setLoading(false);
+      }, 2000);
+
+      return;
     }
-  };
+
+    if (res.status === 401) {
+      toast.error("Email or password is incorrect");
+      return;
+    }
+
+    if (res.status === 500) {
+      toast.error("Something went wrong. Please try again.");
+      return;
+    }
+
+    toast.error("Failed to login.");
+  } catch (error) {
+    toast.error("Network error. Please check your internet connection.");
+  } finally {
+    setLoading(false);
+  }
+};
 
   return (
     <main className="relative h-screen w-full flex items-center justify-center overflow-hidden p-4 sm:p-6 lg:p-8">

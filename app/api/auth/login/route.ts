@@ -1,6 +1,9 @@
 import { NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 import { prisma } from "@/app/lib/prisma";
+import { createToken } from "@/app/lib/auth";
+
+
 
 
 export async function POST(req: Request) {
@@ -30,10 +33,24 @@ export async function POST(req: Request) {
       );
     }
 
-    return NextResponse.json({
-      success: true,
-      adminId: admin.id,
-    });
+   const token = await createToken(admin.id);
+
+const response = NextResponse.json({
+  success: true,
+  message: "Login successful",
+});
+
+    response.cookies.set("token", token, {
+  httpOnly: true,
+  secure: process.env.NODE_ENV === "production",
+  sameSite: "lax",
+  maxAge: 60 * 60 * 24 * 7,
+  path: "/",
+});
+
+return response;
+
+    
   } catch {
     return NextResponse.json(
       { message: "Server Error" },
