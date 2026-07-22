@@ -70,7 +70,7 @@ export default function LoginPage() {
 };
 
   return (
-    <main className="relative h-screen w-full flex items-center justify-center overflow-hidden p-4 sm:p-6 lg:p-8">
+    <main className="relative h-screen w-full flex items-center justify-center  p-4 sm:p-6 lg:p-8">
       {/* Background Image with Dark Overlay */}
       <div aria-hidden className="absolute inset-0 pointer-events-none z-0">
         <Image
@@ -159,8 +159,8 @@ export default function LoginPage() {
             </div>
 
             {/* Login Button */}
-            <Button variant="primary" size="md" fullWidth type="submit" disabled={loading}>
-              {loading ? "Logging in..." : "Login"}
+            <Button variant="primary" size="md" fullWidth type="submit" isLoading={loading}>
+              Login
             </Button>
           </form>
 
