@@ -7,7 +7,7 @@ export default async function Home() {
   const products = await getProductsListAction();
 
   return (
-    <div className="flex flex-col min-h-screen w-full bg-[#eff1f4]">
+    <div className="flex flex-col min-h-screen w-full bg-[#F4F1EF]">
       {/* Top Navbar */}
       <Navbar title="Products" />
 

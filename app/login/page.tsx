@@ -74,11 +74,11 @@ export default function LoginPage() {
       {/* Background Image with Dark Overlay */}
       <div aria-hidden className="absolute inset-0 pointer-events-none z-0">
         <Image
-          src="/login-bg.png"
+          src="/assets/loginbackground.png"
           alt="Login Background"
           fill
           priority
-          className="object-cover size-full"
+          className=" object-bottom size-full"
         />
         <div className="absolute inset-0 bg-bg-overlay" />
       </div>

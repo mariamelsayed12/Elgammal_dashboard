@@ -39,5 +39,8 @@ model Admin {
   email     String   @unique
   password  String
 
+  otp               String?
+  otpExpiresAt      DateTime?
+
   createdAt DateTime @default(now())
 }

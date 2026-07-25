@@ -1,6 +1,7 @@
-import { PrismaClient } from "@prisma/client";
-import { revalidatePath } from "next/cache";
+"use server";
 
+import { prisma } from "../lib/prisma";
+import { revalidatePath } from "next/cache";
 
 
 interface LocalizedString {
@@ -22,42 +23,52 @@ interface Iproduct {
   sizes   :   string[]
   variants  :    Variant[]
 }
- 
-
-
-let prisma: PrismaClient;
-
-function getPrisma() {
-  if (!prisma) {
-    prisma = new PrismaClient();
-  }
-  return prisma;
-}
 
 export const getProductsListAction = async () => {
-    const products = await getPrisma().product.findMany()
+    const products = await prisma.product.findMany()
     return products
 }
 
 
 export const createProductListAction = async ({description,name,price,sizes,variants}:Iproduct) => {
-
-    await prisma.product.create(
-        {data:
-            {
-                description,
-                name,
-                price,
-                sizes,
-                variants,
+    try {
+        await prisma.product.create(
+            {data:
+                {
+                    description,
+                    name,
+                    price,
+                    sizes,
+                    variants,
+                }
             }
-            
-        }
-    )
-    // to update data after create
-    revalidatePath('/')
-    
+        )
+        // to update data after create
+        revalidatePath('/')
+        return { ok: true, message: "Product created successfully" }
+    } catch (error) {
+        console.error("Failed to create product:", error);
+        return { ok: false, message: error instanceof Error ? error.message : "An unexpected error occurred" }
+    }
 }
+
+
+export const deleteProductListAction = async ({id}:{id:string}) => {
+    try {
+        await prisma.product.delete({
+            where:{
+                id,
+            }
+        })
+        // For Update data after delete
+        revalidatePath('/')
+        return { ok: true, message: "Product deleted successfully" }
+    } catch (error) {
+        console.error("Failed to delete product:", error);
+        return { ok: false, message: error instanceof Error ? error.message : "An unexpected error occurred" }
+    }
+}
+
 
 
 

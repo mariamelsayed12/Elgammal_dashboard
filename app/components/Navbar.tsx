@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { Plus, LogOut } from "lucide-react";
 import { Button } from "@/app/components/ui/Button";
 import toast from "react-hot-toast";
+import { useState } from "react";
 
 interface NavbarProps {
   title: string;
@@ -11,8 +12,10 @@ interface NavbarProps {
 
 export function Navbar({ title }: NavbarProps) {
   const router = useRouter();
+  const[isLoading,setIsloading]=useState(false)
 
  const handleLogout = async () => {
+  setIsloading(true);
   const res = await fetch("/api/auth/logout", {
     method: "POST",
   });
@@ -24,6 +27,7 @@ export function Navbar({ title }: NavbarProps) {
       router.push("/login");
     }, 1500);
   }
+    setIsloading(false);
  }
 
   return (
@@ -57,13 +61,17 @@ export function Navbar({ title }: NavbarProps) {
         </button>
 
         {/* Logout Button */}
-        <button
+        <Button
           onClick={handleLogout}
-          className="border border-[#d4d5d8] hover:bg-neutral-50 text-neutral-950 flex gap-[8px] h-[36px] items-center justify-center px-[24px] py-[8px] rounded-[16px] shrink-0 font-poppins font-medium text-[16px] transition-colors"
+          isLoading={isLoading}
+          variant="outline"
+          size="sm"
+          fullWidth={false}
+          leftIcon={<LogOut className="h-4 w-4" />}
+          className="border border-[#d4d5d8] hover:bg-neutral-50 text-neutral-950 h-[36px] px-[24px] rounded-[16px] font-poppins font-medium text-[16px] transition-colors"
         >
-          <LogOut className="h-4 w-4" />
-          <span>Logout</span>
-        </button>
+          Logout
+        </Button>
       </div>
     </header>
   );

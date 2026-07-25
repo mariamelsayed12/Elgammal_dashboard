@@ -7,7 +7,7 @@
 
   /* Neutral & Brand Palette */
   --color-neutral-0: #ffffff;
-  --color-neutral-25: #eff1f4;
+  --color-neutral-25: #F4F1EF;
   --color-neutral-100: #d4d5d8;
   --color-neutral-400: #8e8e93;
   --color-neutral-600: #6b7280;
@@ -15,11 +15,11 @@
   --color-neutral-900: #121212;
   --color-neutral-950: #141414;
   
-  --color-brand-primary: #121212;
-  --color-brand-primary-hover: #262626;
+  --color-brand-primary:#FF6B35;
+  --color-brand-primary-hover: #ff7948;
 
   --color-danger-500: #dc2626;
-  --color-danger-600: #b91c1c;
+  --color-danger-600: #d7110e;
 
   /* Background Tokens */
   --color-bg-primary: var(--color-neutral-25);

@@ -44,6 +44,10 @@ export default {
           900: "var(--color-neutral-900)",
           950: "var(--color-neutral-950)",
         },
+        danger: {
+          500: "var(--color-danger-500)",
+          600: "var(--color-danger-600)",
+        },
       },
       borderRadius: {
         input: "var(--radius-input)",

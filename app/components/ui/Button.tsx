@@ -18,6 +18,8 @@ const buttonVariants = cva(
           "border border-border-input bg-transparent text-neutral-900 hover:bg-neutral-100",
         ghost:
           "bg-transparent text-neutral-900 hover:bg-neutral-100",
+        danger:
+          "bg-danger-600 text-white hover:bg-danger-500 active:scale-[0.99] transition-all duration-150 shadow-sm",
       },
       size: {
         sm: "h-9 px-4 text-xs rounded-input",

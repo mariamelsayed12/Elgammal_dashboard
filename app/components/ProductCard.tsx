@@ -2,6 +2,10 @@
 
 import { Image as ImageIcon, Package, Edit3, Trash2 } from "lucide-react";
 import Image from "next/image";
+import { useState } from "react";
+import toast from "react-hot-toast";
+import { DeleteConfirmationModal } from "@/app/components/ui/DeleteConfirmationModal";
+import { deleteProductListAction } from "../actions/products.actions";
 
 interface LocalizedString {
   en: string;
@@ -44,6 +48,9 @@ const getColorHex = (colorName: string): string => {
 };
 
 export function ProductCard({ product }: ProductCardProps) {
+  const [isDeleteOpen, setIsDeleteOpen] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+
   // Extract all unique colors across variants
   const colors = Array.from(new Set(product.variants?.map((v) => v.color.en) || []));
 
@@ -55,6 +62,22 @@ export function ProductCard({ product }: ProductCardProps) {
 
   // Deterministic mock quantity (since schema doesn't include quantity, we show e.g. 16 or deterministic number based on price)
   const quantity = Math.max(8, Math.round((product.price % 30) + 10));
+
+
+  const handleDeleteProduct=async()=>{
+     setIsDeleting(true);
+         const res= await  deleteProductListAction({id:product.id??""})
+         if(res.ok){
+          toast.success(res.message)
+         }else{
+          toast.error(res.message)
+         }
+          setTimeout(() => {
+            setIsDeleting(false);
+            setIsDeleteOpen(false);
+            toast.success(`Deleted product: ${product.name.en} (UI Demo)`);
+          }, 1200);
+        }
 
   return (
     <div className="bg-white border border-[#d4d5d8] flex flex-col lg:flex-row gap-[24px] lg:h-[166px] items-center p-[17px] relative rounded-[12px] w-full select-none hover:shadow-sm transition-all duration-200">
@@ -191,15 +214,28 @@ export function ProductCard({ product }: ProductCardProps) {
             <span>Edit</span>
           </button>
 
-          {/* Delete Button (Design-Only / Disabled) */}
+          {/* Delete Button */}
           <button
-            disabled
-            className="border border-[#d4d5d8] bg-white text-red-600 flex items-center justify-center h-[36px] w-full rounded-[16px] shrink-0 cursor-not-allowed opacity-60"
+            onClick={() => setIsDeleteOpen(true)}
+            className="border border-[#d4d5d8] bg-white text-red-600 hover:bg-red-50 hover:border-red-200 active:scale-[0.98] transition-all flex items-center justify-center h-[36px] w-full rounded-[16px] shrink-0 cursor-pointer"
           >
             <Trash2 className="h-4 w-4 shrink-0" />
           </button>
         </div>
       </div>
+
+     
+
+      <DeleteConfirmationModal
+        isOpen={isDeleteOpen}
+        onClose={() => setIsDeleteOpen(false)}
+        onConfirm={handleDeleteProduct}
+        isLoading={isDeleting}
+        title={`Are you sure you want to delete\nthis product  ?`}
+        description="This action can’t be undone."
+        confirmText="Yes, delete"
+        cancelText="Cancel"
+      />
     </div>
   );
 }
