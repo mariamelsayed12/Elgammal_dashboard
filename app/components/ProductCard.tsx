@@ -6,6 +6,8 @@ import { useState } from "react";
 import toast from "react-hot-toast";
 import { DeleteConfirmationModal } from "@/app/components/ui/DeleteConfirmationModal";
 import { deleteProductListAction } from "../actions/products.actions";
+import { EditProductDrawer } from "./EditProductDrawer";
+import { ProductStatus } from "@prisma/client";
 
 interface LocalizedString {
   en: string;
@@ -26,30 +28,33 @@ interface Product {
   variants: Variant[];
   createdAt: Date;
   updatedAt: Date;
+  quantity?: number;
+  status?: ProductStatus;
 }
 
 interface ProductCardProps {
   product: Product;
 }
 
-const getColorHex = (colorName: string): string => {
-  const name = colorName.toLowerCase().trim();
-  switch (name) {
-    case "black": return "#1a1a1a";
-    case "blue": return "#3b5998";
-    case "navy": return "#000080";
-    case "gray":
-    case "grey": return "#808080";
-    case "red": return "#d7110e";
-    case "green": return "#44992e";
-    case "white": return "#ffffff";
-    default: return name;
-  }
-};
+// const getColorHex = (colorName: string): string => {
+//   const name = colorName.toLowerCase().trim();
+//   switch (name) {
+//     case "black": return "#1a1a1a";
+//     case "blue": return "#3b5998";
+//     case "navy": return "#000080";
+//     case "gray":
+//     case "grey": return "#808080";
+//     case "red": return "#d7110e";
+//     case "green": return "#44992e";
+//     case "white": return "#ffffff";
+//     default: return name;
+//   }
+// };
 
 export function ProductCard({ product }: ProductCardProps) {
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isEditOpen, setIsEditOpen] = useState(false);
 
   // Extract all unique colors across variants
   const colors = Array.from(new Set(product.variants?.map((v) => v.colorHex).filter((c): c is string => !!c) || []));
@@ -60,8 +65,8 @@ export function ProductCard({ product }: ProductCardProps) {
   // Calculate total images
   const totalImages = product.variants?.reduce((sum, v) => sum + (v.images?.length || 0), 0) || 0;
 
-  // Deterministic mock quantity (since schema doesn't include quantity, we show e.g. 16 or deterministic number based on price)
-  const quantity = Math.max(8, Math.round((product.price % 30) + 10));
+  // Deterministic mock quantity fallback (since schema doesn't include quantity, we show e.g. 16 or deterministic number based on price)
+  const quantity = product.quantity ?? Math.max(8, Math.round((product.price % 30) + 10));
 
 
   const handleDeleteProduct=async()=>{
@@ -104,9 +109,15 @@ export function ProductCard({ product }: ProductCardProps) {
             <h2 className="font-poppins font-medium text-[19px] text-[#141414] truncate max-w-[300px] leading-tight">
               {product.name.en}
             </h2>
-            <div className="bg-[#edf6eb] flex items-center px-[8px] py-[4px] rounded-[4px] shrink-0">
-              <span className="font-poppins font-semibold text-[11px] text-[#44992e] leading-none">
-                Published
+            <div className={
+              product.status === "DRAFT"
+                ? "bg-neutral-100 text-neutral-600 flex items-center px-[8px] py-[4px] rounded-[4px] shrink-0"
+                : product.status === "PUBLISHED"
+                ? "bg-[#edf6eb] text-[#44992e] flex items-center px-[8px] py-[4px] rounded-[4px] shrink-0"
+                : "bg-red-50 text-red-600 flex items-center px-[8px] py-[4px] rounded-[4px] shrink-0"
+            }>
+              <span className="font-poppins font-semibold text-[11px] leading-none">
+                {product.status === "DRAFT" ? "Draft" : product.status === "PUBLISHED" ? "Published" : "Archived"}
               </span>
             </div>
           </div>
@@ -134,7 +145,7 @@ export function ProductCard({ product }: ProductCardProps) {
                   <div
                     key={idx}
                     title={color}
-                    style={{ backgroundColor: getColorHex(color) }}
+                    style={{ backgroundColor: color }}
                     className="border border-black/10 rounded-full shrink-0 w-[16px] h-[16px]"
                   />
                 ))
@@ -205,10 +216,10 @@ export function ProductCard({ product }: ProductCardProps) {
 
         {/* Action Buttons */}
         <div className="flex lg:flex-col gap-[8px] justify-end items-center shrink-0 w-full lg:w-[100px]">
-          {/* Edit Button (Design-Only / Disabled) */}
+          {/* Edit Button */}
           <button
-            disabled
-            className="border border-[#d4d5d8] bg-white text-[#141414] flex gap-[8px] h-[36px] items-center justify-center px-[24px] py-[8px] rounded-[16px] shrink-0 font-poppins font-medium text-[16px] text-center w-full cursor-not-allowed opacity-60"
+            onClick={() => setIsEditOpen(true)}
+            className="border border-[#d4d5d8] bg-white hover:bg-neutral-50 active:scale-[0.98] text-[#141414] flex gap-[8px] h-[36px] items-center justify-center px-[24px] py-[8px] rounded-[16px] shrink-0 font-poppins font-medium text-[16px] text-center w-full cursor-pointer transition-all duration-150"
           >
             <Edit3 className="h-4 w-4 shrink-0" />
             <span>Edit</span>
@@ -224,8 +235,6 @@ export function ProductCard({ product }: ProductCardProps) {
         </div>
       </div>
 
-     
-
       <DeleteConfirmationModal
         isOpen={isDeleteOpen}
         onClose={() => setIsDeleteOpen(false)}
@@ -235,6 +244,12 @@ export function ProductCard({ product }: ProductCardProps) {
         description="This action can’t be undone."
         confirmText="Yes, delete"
         cancelText="Cancel"
+      />
+
+      <EditProductDrawer
+        isOpen={isEditOpen}
+        onClose={() => setIsEditOpen(false)}
+        product={product}
       />
     </div>
   );

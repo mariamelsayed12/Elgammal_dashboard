@@ -77,5 +77,33 @@ export const deleteProductListAction = async ({id}:{id:string}) => {
 }
 
 
+export const updateProductListAction = async (id: string, payload: Iproduct | string) => {
+    try {
+        const data = typeof payload === "string" ? (JSON.parse(payload) as Iproduct) : payload;
+        const { description, name, price, sizes, variants, quantity, status } = data;
+        await prisma.product.update({
+            where: {
+                id,
+            },
+            data: {
+                description,
+                name,
+                price,
+                sizes,
+                variants,
+                quantity,
+                status
+            }
+        })
+        // to update data after update
+        revalidatePath('/')
+        return { ok: true, message: "Product updated successfully" }
+    } catch (error) {
+        console.error("Failed to update product:", error);
+        return { ok: false, message: error instanceof Error ? error.message : "An unexpected error occurred" }
+    }
+}
+
+
 
 
