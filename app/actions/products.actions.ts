@@ -11,7 +11,7 @@ interface LocalizedString {
 }
 
 interface Variant {
- colorHex :string | null
+  colorHex: string
   images: string[]
 }
 
