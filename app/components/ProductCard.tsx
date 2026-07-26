@@ -13,7 +13,7 @@ interface LocalizedString {
 }
 
 interface Variant {
-  color: LocalizedString;
+  colorHex: string | null;
   images: string[];
 }
 
@@ -52,7 +52,7 @@ export function ProductCard({ product }: ProductCardProps) {
   const [isDeleting, setIsDeleting] = useState(false);
 
   // Extract all unique colors across variants
-  const colors = Array.from(new Set(product.variants?.map((v) => v.color.en) || []));
+  const colors = Array.from(new Set(product.variants?.map((v) => v.colorHex).filter((c): c is string => !!c) || []));
 
   // Extract first image
   const firstImage = product.variants?.[0]?.images?.[0];

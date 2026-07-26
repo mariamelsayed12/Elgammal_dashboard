@@ -2,6 +2,7 @@
 
 import { prisma } from "../lib/prisma";
 import { revalidatePath } from "next/cache";
+import { ProductStatus } from "@prisma/client";
 
 
 interface LocalizedString {
@@ -10,16 +11,18 @@ interface LocalizedString {
 }
 
 interface Variant {
-  color:  LocalizedString
+ colorHex :string | null
   images: string[]
 }
+
 
 interface Iproduct {
 
   name        :   LocalizedString
   description :   LocalizedString
-
   price :    number
+  quantity : number
+  status:   ProductStatus
   sizes   :   string[]
   variants  :    Variant[]
 }
@@ -30,8 +33,10 @@ export const getProductsListAction = async () => {
 }
 
 
-export const createProductListAction = async ({description,name,price,sizes,variants}:Iproduct) => {
+export const createProductListAction = async (payload: Iproduct | string) => {
     try {
+        const data = typeof payload === "string" ? (JSON.parse(payload) as Iproduct) : payload;
+        const { description, name, price, sizes, variants, quantity, status } = data;
         await prisma.product.create(
             {data:
                 {
@@ -40,6 +45,8 @@ export const createProductListAction = async ({description,name,price,sizes,vari
                     price,
                     sizes,
                     variants,
+                    quantity,
+                    status
                 }
             }
         )

@@ -5,6 +5,7 @@ import { Plus, LogOut } from "lucide-react";
 import { Button } from "@/app/components/ui/Button";
 import toast from "react-hot-toast";
 import { useState } from "react";
+import { CreateProductDrawer } from "./CreateProductDrawer";
 
 interface NavbarProps {
   title: string;
@@ -12,23 +13,24 @@ interface NavbarProps {
 
 export function Navbar({ title }: NavbarProps) {
   const router = useRouter();
-  const[isLoading,setIsloading]=useState(false)
+  const [isLoading, setIsloading] = useState(false);
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
- const handleLogout = async () => {
-  setIsloading(true);
-  const res = await fetch("/api/auth/logout", {
-    method: "POST",
-  });
+  const handleLogout = async () => {
+    setIsloading(true);
+    const res = await fetch("/api/auth/logout", {
+      method: "POST",
+    });
 
-  if (res.ok) {
-    toast.success("Logged out successfully");
+    if (res.ok) {
+      toast.success("Logged out successfully");
 
-    setTimeout(() => {
-      router.push("/login");
-    }, 1500);
-  }
+      setTimeout(() => {
+        router.push("/login");
+      }, 1500);
+    }
     setIsloading(false);
- }
+  };
 
   return (
     <header className="bg-white border-b border-neutral-100 flex h-[71px] items-center justify-between pr-[32px] w-full shrink-0 select-none z-10">
@@ -51,14 +53,16 @@ export function Navbar({ title }: NavbarProps) {
 
       {/* Action Buttons */}
       <div className="flex gap-[16px] items-center">
-        {/* Add Product Button (Design-Only / Disabled) */}
-        <button
-          disabled
-          className="bg-neutral-900 hover:bg-neutral-800 text-[#eff1f4] flex gap-[8px] h-[36px] items-center justify-center px-[24px] py-[8px] rounded-[16px] shrink-0 font-poppins font-medium text-[16px] transition-colors cursor-not-allowed opacity-60"
+        {/* Add Product Button */}
+        <Button
+          onClick={() => setIsDrawerOpen(true)}
+          fullWidth={false}
+          size="sm"
+          leftIcon={<Plus className="h-5 w-5" />}
+          className="rounded-xl text-white h-[36px] px-[24px]  font-poppins font-medium text-[16px] transition-all flex items-center justify-center shrink-0 border-0"
         >
-          <Plus className="h-5 w-5" />
-          <span>Add Product</span>
-        </button>
+          Add Product
+        </Button>
 
         {/* Logout Button */}
         <Button
@@ -73,6 +77,9 @@ export function Navbar({ title }: NavbarProps) {
           Logout
         </Button>
       </div>
+
+      {/* Create Product Drawer */}
+      <CreateProductDrawer isOpen={isDrawerOpen} onClose={() => setIsDrawerOpen(false)} />
     </header>
   );
 }
