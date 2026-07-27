@@ -4,7 +4,7 @@ import { useRef, useState } from "react";
 import { useForm, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import z from "zod";
-import { X, Plus, ImagePlus, ChevronDown } from "lucide-react";
+import { X, Plus, ImagePlus, ChevronDown, Loader2 } from "lucide-react";
 import { Button } from "@/app/components/ui/Button";
 import { Input } from "@/app/components/ui/Input";
 import { createProductSchema } from "../schema";
@@ -14,48 +14,7 @@ import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 import { cn } from "@/app/lib/utils";
 import { motion, AnimatePresence } from "framer-motion";
-
-const compressImage = (file: File): Promise<string> => {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.readAsDataURL(file);
-    reader.onload = (event) => {
-      const img = new window.Image();
-      img.src = event.target?.result as string;
-      img.onload = () => {
-        const canvas = document.createElement("canvas");
-        let width = img.width;
-        let height = img.height;
-
-        const MAX_DIM = 1000;
-        if (width > MAX_DIM || height > MAX_DIM) {
-          if (width > height) {
-            height = Math.round((height * MAX_DIM) / width);
-            width = MAX_DIM;
-          } else {
-            width = Math.round((width * MAX_DIM) / height);
-            height = MAX_DIM;
-          }
-        }
-
-        canvas.width = width;
-        canvas.height = height;
-
-        const ctx = canvas.getContext("2d");
-        if (!ctx) {
-          reject(new Error("Could not get 2D context"));
-          return;
-        }
-
-        ctx.drawImage(img, 0, 0, width, height);
-        const dataUrl = canvas.toDataURL("image/jpeg", 0.7);
-        resolve(dataUrl);
-      };
-      img.onerror = (err) => reject(err);
-    };
-    reader.onerror = (err) => reject(err);
-  });
-};
+import { useImageUpload } from "../hooks/useImageUpload";
 
 type CreateProductFormValues = z.infer<typeof createProductSchema>;
 
@@ -74,6 +33,7 @@ export function CreateProductDrawer({ isOpen, onClose }: CreateProductDrawerProp
     register,
     handleSubmit,
     setValue,
+    getValues,
     watch,
     reset,
     control,
@@ -101,44 +61,18 @@ export function CreateProductDrawer({ isOpen, onClose }: CreateProductDrawerProp
   const sizes = watch("sizes") || [];
   const watchedVariants = watch("variants") || [];
 
+  const {
+    uploadingCount,
+    uploadingImages,
+    handleFileSelectForVariant,
+  } = useImageUpload(setValue, getValues, watchedVariants);
+
   const handleAddColor = (colorHex: string) => {
     if (watchedVariants.some((v: any) => v.colorHex.toLowerCase() === colorHex.toLowerCase())) {
       toast.error("This color has already been added.");
       return;
     }
     append({ colorHex, images: [] });
-  };
-
-  const handleFileSelectForVariant = (index: number, files: FileList) => {
-    const fileArray = Array.from(files);
-    const currentImages = watchedVariants[index]?.images || [];
-    
-    if (currentImages.length + fileArray.length > 4) {
-      toast.error("You can upload a maximum of 4 images for a single color.");
-      return;
-    }
-
-    const validFiles = fileArray.filter((file) => {
-      const isValidType = ["image/png", "image/jpeg", "image/jpg", "image/webp"].includes(file.type);
-      const isValidSize = file.size <= 5 * 1024 * 1024; // 5MB
-      return isValidType && isValidSize;
-    });
-
-    if (validFiles.length < fileArray.length) {
-      toast.error("Some files were skipped. Only PNG, JPG, and WEBP under 5MB are allowed.");
-    }
-
-    const promises = validFiles.map((file) => compressImage(file));
-
-    Promise.all(promises)
-      .then((base64Urls) => {
-        const updatedImages = [...currentImages, ...base64Urls];
-        setValue(`variants.${index}.images`, updatedImages, { shouldValidate: true });
-      })
-      .catch((err) => {
-        console.error(err);
-        toast.error("Failed to process images.");
-      });
   };
 
   const handleRemoveImageFromVariant = (variantIndex: number, imageIndex: number) => {
@@ -517,22 +451,31 @@ export function CreateProductDrawer({ isOpen, onClose }: CreateProductDrawerProp
                             {/* Thumbnail Preview list */}
                             {imagesList.length > 0 && (
                               <div className="flex gap-[8px] items-start flex-wrap mt-1">
-                                {imagesList.map((img: string, imgIdx: number) => (
-                                  <div
-                                    key={imgIdx}
-                                    className="relative border border-[#d4d5d8] border-dashed rounded-[8px] overflow-hidden size-[60px] shrink-0 group shadow-sm bg-neutral-50"
-                                  >
-                                    <img alt="" src={img} className="object-cover size-full" />
-                                    <button
-                                      type="button"
-                                      disabled={submitting}
-                                      onClick={() => handleRemoveImageFromVariant(index, imgIdx)}
-                                      className="absolute top-0.5 right-0.5 bg-black/60 rounded-full p-0.5 text-white opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
+                                {imagesList.map((img: string, imgIdx: number) => {
+                                  const isUploading = !!uploadingImages[img];
+                                  return (
+                                    <div
+                                      key={imgIdx}
+                                      className="relative border border-[#d4d5d8] border-dashed rounded-[8px] overflow-hidden size-[60px] shrink-0 group shadow-sm bg-neutral-50"
                                     >
-                                      <X className="h-3 w-3" />
-                                    </button>
-                                  </div>
-                                ))}
+                                      <img alt="" src={img} className="object-cover size-full" />
+                                      {isUploading ? (
+                                        <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
+                                          <Loader2 className="h-4 w-4 text-white animate-spin" />
+                                        </div>
+                                      ) : (
+                                        <button
+                                          type="button"
+                                          disabled={submitting}
+                                          onClick={() => handleRemoveImageFromVariant(index, imgIdx)}
+                                          className="absolute top-0.5 right-0.5 bg-black/60 rounded-full p-0.5 text-white opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
+                                        >
+                                          <X className="h-3 w-3" />
+                                        </button>
+                                      )}
+                                    </div>
+                                  );
+                                })}
                               </div>
                             )}
 
@@ -553,8 +496,15 @@ export function CreateProductDrawer({ isOpen, onClose }: CreateProductDrawerProp
 
             {/* Sticky/Fixed Footer containing Save Button */}
             <div className="border-t border-[#d4d5d8] bg-white pb-[32px] pt-[12px] px-[32px] flex items-center justify-center w-full">
-              <Button variant="primary" size="md" fullWidth type="submit" isLoading={submitting}>
-                Save
+              <Button
+                variant="primary"
+                size="md"
+                fullWidth
+                type="submit"
+                isLoading={submitting || uploadingCount > 0}
+                disabled={submitting || uploadingCount > 0}
+              >
+                {uploadingCount > 0 ? `Uploading images (${uploadingCount})...` : "Save"}
               </Button>
             </div>
           </form>

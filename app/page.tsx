@@ -3,6 +3,8 @@ import { Navbar } from "@/app/components/Navbar";
 import { ProductCard } from "@/app/components/ProductCard";
 import { EmptyState } from "@/app/components/EmptyState";
 
+export const dynamic = "force-dynamic";
+
 export default async function Home() {
   const products = await getProductsListAction();
 

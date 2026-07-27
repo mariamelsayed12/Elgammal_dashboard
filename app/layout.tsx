@@ -17,8 +17,13 @@ const poppins = Poppins({
 });
 
 export const metadata: Metadata = {
-  title: " Elgammal - Dashboard",
+  title: "Elgammal - Dashboard",
   description: "Elgammal - Dashboard",
+  icons: {
+    icon: "/logo.svg",
+    shortcut: "/logo.svg",
+    apple: "/logo.svg",
+  },
 };
 
 export default function RootLayout({
