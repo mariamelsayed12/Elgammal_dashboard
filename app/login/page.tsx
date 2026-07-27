@@ -147,14 +147,14 @@ export default function LoginPage() {
                 />
                 
                 {/* Forgot Password Link */}
-                <div className="flex h-[32px] items-center justify-end w-full mt-1">
+                {/* <div className="flex h-[32px] items-center justify-end w-full mt-1">
                   <a
                     href="#forgot-password"
                     className="font-poppins font-normal text-[14px] text-text-link hover:underline transition-all"
                   >
                     Forgot password ?
                   </a>
-                </div>
+                </div> */}
               </div>
             </div>
 
