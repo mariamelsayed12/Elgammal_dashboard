@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { Poppins } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "react-hot-toast";
+import { ReduxProvider } from "@/redux/provider";
+import InternetConnectionProvider from "@/provider/InternetConnectionServicesProvider";
 
 const poppins = Poppins({
   subsets: ["latin"],
@@ -36,8 +38,14 @@ export default function RootLayout({
       lang="en"
       className={`${poppins.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col">{children} <Toaster /> </body>
-     
+      <body className="min-h-full flex flex-col">
+        <ReduxProvider>
+          <InternetConnectionProvider>
+            {children}
+            <Toaster />
+          </InternetConnectionProvider>
+        </ReduxProvider>
+      </body>
     </html>
   );
 }
