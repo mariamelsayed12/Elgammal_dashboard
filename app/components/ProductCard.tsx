@@ -80,7 +80,7 @@ export function ProductCard({ product }: ProductCardProps) {
           setTimeout(() => {
             setIsDeleting(false);
             setIsDeleteOpen(false);
-            toast.success(`Deleted product: ${product.name.en} (UI Demo)`);
+            // toast.success(`Deleted product: ${product.name.en} (UI Demo)`);
           }, 1200);
         }
 

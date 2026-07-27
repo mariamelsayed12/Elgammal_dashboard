@@ -61,3 +61,51 @@ body {
   background-color: var(--color-bg-primary);
   color: var(--color-text-primary);
 }
+
+/* --- Input Autofill Styling Fix --- */
+
+/* 1. When the input/textarea inside the container is autofilled, remove horizontal padding from the container and match background */
+.input-container:has(input:-webkit-autofill),
+.input-container:has(textarea:-webkit-autofill) {
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+  background-color: #e8f0fe !important;
+  overflow: hidden !important;
+}
+
+/* 2. Adjust spacing for prefix icon when autofilled */
+.input-container:has(input:-webkit-autofill) .input-prefix-icon,
+.input-container:has(textarea:-webkit-autofill) .input-prefix-icon {
+  padding-left: 12px !important;
+}
+
+/* 3. Adjust spacing for suffix icon or password toggle button when autofilled */
+.input-container:has(input:-webkit-autofill) .input-suffix-icon,
+.input-container:has(textarea:-webkit-autofill) .input-suffix-icon {
+  padding-right: 12px !important;
+}
+
+/* 4. Style the autofilled input/textarea itself */
+.input-container input:-webkit-autofill,
+.input-container textarea:-webkit-autofill {
+  -webkit-box-shadow: 0 0 0px 1000px #e8f0fe inset !important;
+  box-shadow: 0 0 0px 1000px #e8f0fe inset !important;
+  -webkit-text-fill-color: var(--color-text-input) !important;
+  transition: background-color 5000s ease-in-out 0s;
+  
+  /* Fallback padding when no icons are present */
+  padding-left: 12px !important;
+  padding-right: 12px !important;
+}
+
+/* 5. If there is a prefix icon, set the input's padding-left to 0 */
+.input-container:has(.input-prefix-icon) input:-webkit-autofill,
+.input-container:has(.input-prefix-icon) textarea:-webkit-autofill {
+  padding-left: 0 !important;
+}
+
+/* 6. If there is a suffix icon, set the input's padding-right to 0 */
+.input-container:has(.input-suffix-icon) input:-webkit-autofill,
+.input-container:has(.input-suffix-icon) textarea:-webkit-autofill {
+  padding-right: 0 !important;
+}

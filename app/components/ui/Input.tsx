@@ -59,14 +59,14 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
 
         <div
           className={cn(
-            "relative flex h-[48px] w-full items-center rounded-input border border-border-input bg-bg-input px-3 transition-colors focus-within:border-border-input-focus focus-within:ring-1 focus-within:ring-border-input-focus",
+            "relative flex h-[48px] w-full items-center rounded-input border border-border-input bg-bg-input px-3 transition-colors focus-within:border-border-input-focus focus-within:ring-1 focus-within:ring-border-input-focus input-container",
             hasError && "border-border-input-error focus-within:border-border-input-error focus-within:ring-border-input-error",
             disabled && "cursor-not-allowed opacity-60 bg-neutral-100",
             className
           )}
         >
           {prefixIcon && (
-            <span className="mr-2 inline-flex items-center shrink-0 text-neutral-400">
+            <span className="mr-2 inline-flex items-center shrink-0 text-neutral-400 input-prefix-icon">
               {prefixIcon}
             </span>
           )}
@@ -79,7 +79,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
             required={required}
             suppressHydrationWarning
             className={cn(
-              "h-full w-full bg-transparent text-[16px] font-normal text-text-input placeholder:text-text-placeholder focus:outline-none disabled:cursor-not-allowed font-poppins"
+              "h-full w-full bg-transparent text-[16px] font-normal text-text-input placeholder:text-text-placeholder focus:outline-none disabled:cursor-not-allowed font-poppins input-element"
             )}
             {...props}
           />
@@ -90,7 +90,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
               onClick={() => setShowPassword((prev) => !prev)}
               tabIndex={-1}
               disabled={disabled}
-              className="ml-2 inline-flex items-center shrink-0 text-neutral-400 hover:text-neutral-900 focus:outline-none transition-colors"
+              className="ml-2 inline-flex items-center shrink-0 text-neutral-400 hover:text-neutral-900 focus:outline-none transition-colors input-suffix-icon"
               aria-label={showPassword ? "Hide password" : "Show password"}
             >
               {showPassword ? (
@@ -100,7 +100,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
               )}
             </button>
           ) : suffixIcon ? (
-            <span className="ml-2 inline-flex items-center shrink-0 text-neutral-400">
+            <span className="ml-2 inline-flex items-center shrink-0 text-neutral-400 input-suffix-icon">
               {suffixIcon}
             </span>
           ) : null}
